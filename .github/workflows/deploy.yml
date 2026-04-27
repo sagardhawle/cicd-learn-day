@@ -2,7 +2,8 @@ name: CI/CD Terraform Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   terraform:
@@ -26,7 +27,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Format Check
-       run: terraform fmt -check -recursive
+        run: terraform fmt -check -recursive
 
       - name: Terraform Validate
         run: terraform validate
