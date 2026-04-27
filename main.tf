@@ -47,11 +47,15 @@ resource "aws_s3_bucket_policy" "policy" {
 
 # 🔹 Upload index.html
 resource "aws_s3_object" "index" {
-  bucket = aws_s3_bucket.website.id
-  key    = "index.html"
-  source = "./index.html"
+  bucket       = aws_s3_bucket.website.bucket
+  key          = "index.html"
+  source       = "index.html"
+  content_type = "text/html"
 
+  etag = filemd5("index.html")
 }
+
+
 
 # 🔹 Output Website URL
 output "website_url" {
