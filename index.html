@@ -180,6 +180,9 @@
   .card[data-tool="git"] { border-color: rgba(240,80,50,0.3); }
   .card[data-tool="git"]:hover { border-color: #f05032; box-shadow: 0 0 30px rgba(240,80,50,0.25); }
 
+  .card[data-tool="aws"] { border-color: rgba(255,153,0,0.3); }
+  .card[data-tool="aws"]:hover { border-color: #ff9900; box-shadow: 0 0 30px rgba(255,153,0,0.3); }
+
   .card-logo { width: 64px; height: 64px; }
   .card-name {
     font-family: 'Orbitron', sans-serif;
@@ -257,6 +260,7 @@
   .card:nth-child(2) { animation-delay: 0.7s; }
   .card:nth-child(3) { animation-delay: 1.4s; }
   .card:nth-child(4) { animation-delay: 2.1s; }
+  .card:nth-child(5) { animation-delay: 2.8s; }
 </style>
 </head>
 <body>
@@ -329,11 +333,25 @@
       <span class="card-desc">Distributed version control · Track every change</span>
     </div>
 
+    <!-- AWS -->
+    <div class="card" data-tool="aws">
+      <svg class="card-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 38 Q32 48 44 38" stroke="#ff9900" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M41 35 L44 38 L41 41" stroke="#ff9900" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M10 33 L14 20 L18 33 M11.5 28.5 H16.5" stroke="#ff9900" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M20 20 L23 33 L26 24 L29 33 L32 20" stroke="#ff9900" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M46 22 Q34 20 34 26 Q34 32 46 30 Q46 36 34 36" stroke="#ff9900" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <circle cx="32" cy="32" r="28" stroke="rgba(255,153,0,0.2)" stroke-width="1.5"/>
+      </svg>
+      <span class="card-name">AWS</span>
+      <span class="card-desc">Cloud Platform · Scalable infra, compute & storage</span>
+    </div>
+
   </div>
 
   <div class="footer-row">
     <div class="stat">
-      <div class="stat-num">4+</div>
+      <div class="stat-num">5+</div>
       <div class="stat-label">Core Tools</div>
     </div>
     <div class="stat">
@@ -352,12 +370,12 @@
 
 <script>
 const themes = [
-  { from: '#0a0e1a', mid: '#0d1b2a', to: '#07101f', name: 'Deep Space',     accent: '#00f5ff' },
-  { from: '#1a0a1e', mid: '#2d0a4e', to: '#0d0714', name: 'Cosmic Purple',  accent: '#bf7fff' },
-  { from: '#0a1a0a', mid: '#0a2e1a', to: '#071407', name: 'Matrix Green',   accent: '#39ff14' },
-  { from: '#1a0a0a', mid: '#2e0a0a', to: '#14070a', name: 'Red Alert',      accent: '#ff4d4d' },
-  { from: '#0a1520', mid: '#102030', to: '#080f1a', name: 'Ocean Depths',   accent: '#00cfff' },
-  { from: '#1a1500', mid: '#2e2500', to: '#14100a', name: 'Solar Flare',    accent: '#ffa500' },
+  { from: '#0a0e1a', mid: '#0d1b2a', to: '#07101f', name: 'Deep Space',    accent: '#00f5ff' },
+  { from: '#1a0a1e', mid: '#2d0a4e', to: '#0d0714', name: 'Cosmic Purple', accent: '#bf7fff' },
+  { from: '#0a1a0a', mid: '#0a2e1a', to: '#071407', name: 'Matrix Green',  accent: '#39ff14' },
+  { from: '#1a0a0a', mid: '#2e0a0a', to: '#14070a', name: 'Red Alert',     accent: '#ff4d4d' },
+  { from: '#0a1520', mid: '#102030', to: '#080f1a', name: 'Ocean Depths',  accent: '#00cfff' },
+  { from: '#1a1500', mid: '#2e2500', to: '#14100a', name: 'Solar Flare',   accent: '#ffa500' },
 ];
 
 let currentTheme = 0;
