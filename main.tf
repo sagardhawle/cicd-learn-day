@@ -4,7 +4,7 @@ provider "aws" {
 
 # 🔹 S3 Bucket
 resource "aws_s3_bucket" "website" {
-  bucket = "sagarbhaipalam-12345"   # ⚠️ change if already exists
+ bucket = "sagarbhaipalam-12345-new"   # ⚠️ change if already exists
 }
 
 # 🔹 Disable Block Public Access (IMPORTANT)
