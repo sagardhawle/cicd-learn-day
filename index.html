@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to CI/CD – Learn with Sagar</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg1: #0a0e1a;
+    --bg2: #0d1b2a;
+    --bg3: #111827;
+    --bg4: #0f172a;
+    --accent: #00f5ff;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --text: #e2e8f0;
+    --grid: rgba(0,245,255,0.04);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    transition: background 1.8s ease;
+  }
+
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    gap: 48px;
+  }
+
+  .header {
+    text-align: center;
+    animation: fadeDown 1s ease both;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    animation: pulse-border 2s infinite;
+  }
+
+  .title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .title .name {
+    display: block;
+    font-size: clamp(1.6rem, 4vw, 3.2rem);
+    background: linear-gradient(90deg, var(--accent3), #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-top: 6px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: rgba(226,232,240,0.5);
+    margin-top: 16px;
+  }
+
+  .timer-bar {
+    width: 200px;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    margin: 18px auto 0;
+    overflow: hidden;
+  }
+  .timer-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 10px;
+    background: var(--accent);
+    animation: timerFill 2s linear infinite;
+  }
+
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    animation: fadeUp 1.2s ease both 0.3s;
+  }
+
+  .card {
+    width: 160px;
+    padding: 28px 20px 22px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    cursor: default;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.06), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover { transform: translateY(-8px) scale(1.04); }
+  .card:hover::before { opacity: 1; }
+
+  .card[data-tool="terraform"] { border-color: rgba(124,77,255,0.3); }
+  .card[data-tool="terraform"]:hover { border-color: #7c4dff; box-shadow: 0 0 30px rgba(124,77,255,0.25); }
+
+  .card[data-tool="cicd"] { border-color: rgba(0,245,255,0.25); }
+  .card[data-tool="cicd"]:hover { border-color: var(--accent); box-shadow: 0 0 30px rgba(0,245,255,0.2); }
+
+  .card[data-tool="github"] { border-color: rgba(255,255,255,0.15); }
+  .card[data-tool="github"]:hover { border-color: #fff; box-shadow: 0 0 30px rgba(255,255,255,0.15); }
+
+  .card[data-tool="git"] { border-color: rgba(240,80,50,0.3); }
+  .card[data-tool="git"]:hover { border-color: #f05032; box-shadow: 0 0 30px rgba(240,80,50,0.25); }
+
+  .card-logo { width: 64px; height: 64px; }
+  .card-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(226,232,240,0.7);
+    text-transform: uppercase;
+  }
+  .card-desc {
+    font-size: 10px;
+    text-align: center;
+    color: rgba(226,232,240,0.35);
+    line-height: 1.6;
+  }
+
+  .footer-row {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 1.4s ease both 0.6s;
+  }
+
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(226,232,240,0.35);
+    text-transform: uppercase;
+  }
+
+  .color-label {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 20;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    background: rgba(0,0,0,0.4);
+    padding: 6px 12px;
+    border-radius: 4px;
+    backdrop-filter: blur(6px);
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,245,255,0.3); }
+    50%       { box-shadow: 0 0 0 6px rgba(0,245,255,0); }
+  }
+  @keyframes timerFill {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+  }
+  .card { animation: float 5s ease-in-out infinite; }
+  .card:nth-child(1) { animation-delay: 0s; }
+  .card:nth-child(2) { animation-delay: 0.7s; }
+  .card:nth-child(3) { animation-delay: 1.4s; }
+  .card:nth-child(4) { animation-delay: 2.1s; }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="grid-overlay"></div>
+<div class="noise"></div>
+
+<div class="wrapper">
+
+  <div class="header">
+    <div class="badge">▶ live session</div>
+    <h1 class="title">
+      Welcome to CI/CD
+      <span class="name">Learn with Sagar</span>
+    </h1>
+    <p class="subtitle">automate · integrate · deploy · repeat</p>
+    <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+  </div>
+
+  <div class="cards">
+
+    <!-- Terraform -->
+    <div class="card" data-tool="terraform">
+      <svg class="card-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="32,4 56,18 56,46 32,60 8,46 8,18" fill="rgba(124,77,255,0.15)" stroke="#7c4dff" stroke-width="1.5"/>
+        <polygon points="32,12 26,15.5 26,36.5 32,40 38,36.5 38,15.5" fill="#7c4dff" opacity="0.9"/>
+        <polygon points="18,20 12,23.5 12,37.5 18,41 24,37.5 24,23.5" fill="#9c6dff" opacity="0.7"/>
+        <polygon points="46,20 40,23.5 40,37.5 46,41 52,37.5 52,23.5" fill="#5c2ddd" opacity="0.7"/>
+      </svg>
+      <span class="card-name">Terraform</span>
+      <span class="card-desc">Infrastructure as Code · Provision & manage cloud resources</span>
+    </div>
+
+    <!-- CI/CD -->
+    <div class="card" data-tool="cicd">
+      <svg class="card-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" stroke="#00f5ff" stroke-width="1.5" opacity="0.3"/>
+        <circle cx="14" cy="32" r="6" fill="#00f5ff" opacity="0.9"/>
+        <circle cx="32" cy="20" r="6" fill="#00f5ff" opacity="0.7"/>
+        <circle cx="50" cy="32" r="6" fill="#00f5ff" opacity="0.9"/>
+        <circle cx="32" cy="44" r="6" fill="#00f5ff" opacity="0.7"/>
+        <line x1="20" y1="32" x2="26" y2="23" stroke="#00f5ff" stroke-width="1.5" opacity="0.5"/>
+        <line x1="38" y1="20" x2="44" y2="29" stroke="#00f5ff" stroke-width="1.5" opacity="0.5"/>
+        <line x1="44" y1="35" x2="38" y2="44" stroke="#00f5ff" stroke-width="1.5" opacity="0.5"/>
+        <line x1="26" y1="44" x2="20" y2="35" stroke="#00f5ff" stroke-width="1.5" opacity="0.5"/>
+        <polygon points="32,24 28,33 31,33 29,40 36,30 33,30" fill="#00f5ff"/>
+      </svg>
+      <span class="card-name">CI / CD</span>
+      <span class="card-desc">Continuous Integration · Continuous Delivery pipelines</span>
+    </div>
+
+    <!-- GitHub -->
+    <div class="card" data-tool="github">
+      <svg class="card-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <path d="M32 10C20.95 10 12 18.95 12 30c0 8.84 5.73 16.33 13.67 18.97.97.18 1.33-.42 1.33-.93v-3.26c-5.55 1.21-6.71-2.68-6.71-2.68-.9-2.29-2.2-2.9-2.2-2.9-1.8-1.23.14-1.21.14-1.21 1.99.14 3.04 2.04 3.04 2.04 1.77 3.03 4.64 2.15 5.77 1.65.18-1.28.69-2.15 1.26-2.64-4.43-.5-9.09-2.21-9.09-9.85 0-2.18.78-3.96 2.04-5.35-.2-.5-.88-2.53.2-5.27 0 0 1.66-.53 5.44 2.03A18.97 18.97 0 0132 21.5c1.68.01 3.37.23 4.95.67 3.78-2.56 5.44-2.03 5.44-2.03 1.08 2.74.4 4.77.2 5.27 1.27 1.39 2.04 3.17 2.04 5.35 0 7.66-4.67 9.35-9.12 9.84.72.62 1.36 1.83 1.36 3.69v5.47c0 .51.35 1.12 1.34.93C46.27 46.33 52 38.84 52 30c0-11.05-8.95-20-20-20z" fill="white" opacity="0.85"/>
+      </svg>
+      <span class="card-name">GitHub</span>
+      <span class="card-desc">Version control · Collaborate & host repositories</span>
+    </div>
+
+    <!-- Git -->
+    <div class="card" data-tool="git">
+      <svg class="card-logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" fill="rgba(240,80,50,0.08)" stroke="#f05032" stroke-width="1.5" opacity="0.5"/>
+        <path d="M54.5 29.6L34.4 9.5a3.3 3.3 0 00-4.8 0L24.9 14.2l6.1 6.1a3.9 3.9 0 014.9 5l5.9 5.9a3.9 3.9 0 11-2.3 2.2l-5.5-5.5v14.4a3.9 3.9 0 11-3.2-.1V27.6a3.9 3.9 0 01-2.1-5.1L22.6 16 9.5 29.1a3.3 3.3 0 000 4.8l20.1 20.1a3.3 3.3 0 004.8 0L54.5 34.4a3.3 3.3 0 000-4.8z" fill="#f05032" opacity="0.9"/>
+      </svg>
+      <span class="card-name">Git</span>
+      <span class="card-desc">Distributed version control · Track every change</span>
+    </div>
+
+  </div>
+
+  <div class="footer-row">
+    <div class="stat">
+      <div class="stat-num">4+</div>
+      <div class="stat-label">Core Tools</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Automated</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Deployments</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="color-label" id="color-label">Deep Space</div>
+
+<script>
+const themes = [
+  { from: '#0a0e1a', mid: '#0d1b2a', to: '#07101f', name: 'Deep Space',     accent: '#00f5ff' },
+  { from: '#1a0a1e', mid: '#2d0a4e', to: '#0d0714', name: 'Cosmic Purple',  accent: '#bf7fff' },
+  { from: '#0a1a0a', mid: '#0a2e1a', to: '#071407', name: 'Matrix Green',   accent: '#39ff14' },
+  { from: '#1a0a0a', mid: '#2e0a0a', to: '#14070a', name: 'Red Alert',      accent: '#ff4d4d' },
+  { from: '#0a1520', mid: '#102030', to: '#080f1a', name: 'Ocean Depths',   accent: '#00cfff' },
+  { from: '#1a1500', mid: '#2e2500', to: '#14100a', name: 'Solar Flare',    accent: '#ffa500' },
+];
+
+let currentTheme = 0;
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+const label = document.getElementById('color-label');
+const timerFill = document.getElementById('timer-fill');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  drawBg();
+}
+
+function hexToRgb(hex) {
+  return [
+    parseInt(hex.slice(1,3),16),
+    parseInt(hex.slice(3,5),16),
+    parseInt(hex.slice(5,7),16)
+  ];
+}
+
+function drawBg() {
+  const t = themes[currentTheme];
+  const w = canvas.width, h = canvas.height;
+  const grad = ctx.createRadialGradient(w*0.5, h*0.3, 0, w*0.5, h*0.5, w*0.9);
+  grad.addColorStop(0, t.mid);
+  grad.addColorStop(0.6, t.from);
+  grad.addColorStop(1, t.to);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,w,h);
+
+  const [ar,ag,ab] = hexToRgb(t.accent);
+  const glow = ctx.createRadialGradient(w*0.5, h*0.5, 0, w*0.5, h*0.5, w*0.5);
+  glow.addColorStop(0, `rgba(${ar},${ag},${ab},0.06)`);
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0,0,w,h);
+}
+
+function nextTheme() {
+  currentTheme = (currentTheme + 1) % themes.length;
+  drawBg();
+  label.textContent = themes[currentTheme].name;
+  timerFill.style.animation = 'none';
+  timerFill.offsetHeight;
+  timerFill.style.animation = 'timerFill 2s linear infinite';
+  timerFill.style.background = themes[currentTheme].accent;
+}
+
+resize();
+window.addEventListener('resize', resize);
+setInterval(nextTheme, 2000);
+</script>
+</body>
+</html>
